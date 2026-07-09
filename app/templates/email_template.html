@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f4f4f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .header {
+            background-color: #6366f1;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .map-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #d4c4a8;
+            margin-top: 20px;
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 15px;
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #f59e0b;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Your Adventure Awaits! 🗺️</h1>
+        </div>
+        <div class="content">
+            <h2>Hi {{ user.username }},</h2>
+            <p>Your AI-planned trip to <strong>{{ plan.destination }}</strong> is ready! Here is your custom treasure map itinerary:</p>
+            
+            <!-- The Playwright-generated PNG will be attached and referenced here -->
+            <img src="cid:treasure_map_image" alt="Treasure Map Itinerary" class="map-image">
+            
+            <p><strong>Duration:</strong> {{ plan.duration_days }} days</p>
+            <p><strong>Estimated Budget:</strong> ${{ plan.budget_used }} / ${{ plan.total_budget }}</p>
+
+            <div style="text-align: center;">
+                <a href="{{ app_url }}/dashboard/{{ plan.id }}" class="btn">View Full Details</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Planned with ❤️ by AI Trip Planner</p>
+        </div>
+    </div>
+</body>
+</html>

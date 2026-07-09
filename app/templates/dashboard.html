@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AI Trip Planner{% endblock %}
+
+{% block content %}
+<div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <h1>Your Adventures</h1>
+    <a href="/chat" class="btn btn-primary">Plan New Trip</a>
+</div>
+
+{% if trips %}
+<div class="dashboard-grid">
+    {% for trip in trips %}
+    <a href="/dashboard/{{ trip.id }}" class="glass-panel trip-card">
+        <h3>{{ trip.destination }}</h3>
+        <p>From {{ trip.source }}</p>
+        <div class="meta">
+            <span>{{ trip.duration_days }} days</span>
+            <span>${{ trip.budget }}</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% if selected_trip %}
+    <div style="margin-top: 3rem;">
+        <h2>Trip to {{ selected_trip.destination }}</h2>
+        {% include "partials/treasure_map.html" %}
+    </div>
+{% endif %}
+
+{% else %}
+<div class="glass-panel" style="text-align: center; padding: 4rem 2rem; margin-top: 2rem;">
+    <h3 style="color: var(--text-muted); margin-bottom: 1rem;">No adventures planned yet.</h3>
+    <a href="/chat" class="btn btn-primary">Start Your First Journey</a>
+</div>
+{% endif %}
+
+{% endblock %}

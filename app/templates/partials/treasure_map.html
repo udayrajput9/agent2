@@ -1,0 +1,108 @@
+<div class="map-container" id="treasure-map">
+    <!-- SVG for the dashed path -->
+    <svg class="map-svg" id="map-svg"></svg>
+    
+    <!-- Pins will be injected or generated here -->
+    {% if plan and plan.days %}
+        {% for day in plan.days %}
+            <!-- Calculate rough positions using JS or inline styles. For Jinja, we can use percentages. -->
+            <div class="map-pin" style="left: {{ 10 + (loop.index0 * 80 / plan.days|length) }}%; top: {{ 20 + (loop.index0 % 2) * 40 }}%;">
+                <div class="pin-icon">
+                    {% if loop.index0 == 0 %}🛫
+                    {% elif loop.index == plan.days|length %}🏆
+                    {% elif loop.index0 % 3 == 1 %}🏨
+                    {% elif loop.index0 % 3 == 2 %}🍽️
+                    {% else %}📍{% endif %}
+                </div>
+                <div class="pin-popup">
+                    <h4>Day {{ day.day_number }}</h4>
+                    {% if day.activities %}
+                        {% for act in day.activities %}
+                            <p>🔹 {{ act.name }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    {% if day.hotel %}
+                        <p>🏨 {{ day.hotel.name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <!-- Mock data for preview if no plan provided -->
+        <div class="map-pin" style="left: 20%; top: 30%;">
+            <div class="pin-icon">🛫</div>
+            <div class="pin-popup">
+                <h4>Day 1: Arrival</h4>
+                <p>🔹 Check-in to Hotel</p>
+                <p>🔹 Welcome Dinner</p>
+            </div>
+        </div>
+        <div class="map-pin" style="left: 50%; top: 60%;">
+            <div class="pin-icon">📍</div>
+            <div class="pin-popup">
+                <h4>Day 2: City Tour</h4>
+                <p>🔹 Museum Visit</p>
+                <p>🔹 Local Market</p>
+            </div>
+        </div>
+        <div class="map-pin" style="left: 80%; top: 30%;">
+            <div class="pin-icon">🏆</div>
+            <div class="pin-popup">
+                <h4>Day 3: Departure</h4>
+                <p>🔹 Souvenir Shopping</p>
+                <p>🔹 Flight Home</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
+        <h4 style="color: #8b4513;">Budget: ${{ plan.budget_used|default('1500') }} / ${{ plan.total_budget|default('3000') }}</h4>
+        <div class="budget-bar-container" style="background: rgba(139, 69, 19, 0.2);">
+            <div class="budget-bar-fill" style="width: {{ (plan.budget_used / plan.total_budget * 100) if plan and plan.total_budget else 50 }}%;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Light JS to draw the SVG path between pins
+    document.addEventListener("DOMContentLoaded", () => {
+        const mapContainer = document.getElementById('treasure-map');
+        const svg = document.getElementById('map-svg');
+        const pins = Array.from(mapContainer.querySelectorAll('.map-pin'));
+        
+        if (pins.length > 1) {
+            // Wait for layout to settle
+            setTimeout(() => {
+                let pathD = "";
+                pins.forEach((pin, index) => {
+                    const rect = pin.getBoundingClientRect();
+                    const containerRect = mapContainer.getBoundingClientRect();
+                    
+                    // Calculate center base of pin
+                    const x = rect.left - containerRect.left + (rect.width / 2);
+                    const y = rect.top - containerRect.top + rect.height;
+
+                    if (index === 0) {
+                        pathD += `M ${x} ${y} `;
+                    } else {
+                        // Create a curved path for "treasure map" feel
+                        const prevPin = pins[index - 1];
+                        const prevRect = prevPin.getBoundingClientRect();
+                        const prevX = prevRect.left - containerRect.left + (prevRect.width / 2);
+                        const prevY = prevRect.top - containerRect.top + prevRect.height;
+                        
+                        const cp1x = prevX + (x - prevX) / 2;
+                        const cp1y = Math.max(prevY, y) + 50; // Curve down slightly
+                        
+                        pathD += `Q ${cp1x} ${cp1y} ${x} ${y} `;
+                    }
+                });
+                
+                const pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                pathElement.setAttribute("d", pathD);
+                pathElement.setAttribute("class", "map-path");
+                svg.appendChild(pathElement);
+            }, 100);
+        }
+    });
+</script>

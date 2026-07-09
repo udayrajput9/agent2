@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - AI Trip Planner{% endblock %}
+
+{% block content %}
+<div class="glass-panel auth-container">
+    <h2>Start Your Adventure</h2>
+    {% if error %}
+    <p style="color: #ef4444; margin-bottom: 1rem;">{{ error }}</p>
+    {% endif %}
+    <form action="/signup" method="POST" id="signup-form">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required placeholder="explorer_01">
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign Up</button>
+    </form>
+    <div class="auth-footer">
+        Already have an account? <a href="/login">Log in here</a>.
+    </div>
+</div>
+{% endblock %}

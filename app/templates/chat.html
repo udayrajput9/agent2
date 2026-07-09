@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Plan Trip - AI Trip Planner{% endblock %}
+
+{% block content %}
+<div class="glass-panel chat-wrapper">
+    <div class="chat-messages" id="chat-messages">
+        <!-- Initial greeting -->
+        <div class="message bot">
+            Hello! I'm your AI Trip Planner. Tell me about your dream vacation! 
+            Where do you want to go, from where, when, for how long, and what's your budget?
+        </div>
+        
+        <!-- Messages will be injected here by chat.js -->
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="message {{ msg.role }}">
+                    {{ msg.content }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Typing indicator (hidden by default) -->
+    <div id="typing-indicator" class="typing-indicator hidden">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+    </div>
+
+    <form id="chat-form" class="chat-input-area" style="background: var(--bg-dark); border-top: 1px solid var(--border-color);">
+        <input type="text" id="chat-input" placeholder="e.g., I want to go to Tokyo from NYC for 7 days with $3000..." required autocomplete="off">
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/chat.js') }}"></script>
+{% endblock %}
