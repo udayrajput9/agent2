@@ -1,0 +1,77 @@
+{
+  "source": "NYC",
+  "destination": "London",
+  "duration_days": 3,
+  "total_budget": 1000,
+  "budget_used": 1000,
+  "currency_symbol": "\u20b9",
+  "currency_code": "INR",
+  "weather": "33\u00b0C broken clouds, 28\u00b0C overcast clouds, 30\u00b0C clear sky - Warm, pack light clothing and sunscreen",
+  "tips": [
+    "Buy an Oyster card for easy public transport",
+    "Take advantage of free walking tours and museum entry days",
+    "Carry a reusable water bottle and stay hydrated in the summer heat",
+    "Dress in layers for varying cloud cover"
+  ],
+  "flights": [
+    {
+      "airline": "Estimated Airline",
+      "price": "\u20b90 (estimate)",
+      "departure": "NYC",
+      "arrival": "London"
+    }
+  ],
+  "hotel": {
+    "name": "Estimated Budget Hostel",
+    "price_per_night": "\u20b9300",
+    "rating": "3 stars (estimate)",
+    "address": "London, UK (estimate)"
+  },
+  "days": [
+    {
+      "day_number": 1,
+      "title": "Arrival & Exploring Central London",
+      "activities": [
+        {
+          "name": "Free Walking Tour of Westminster (Estimated - \u20b90)"
+        }
+      ],
+      "hotel": {
+        "name": "Estimated Budget Hostel"
+      },
+      "estimated_cost": 300
+    },
+    {
+      "day_number": 2,
+      "title": "Museums & Parks",
+      "activities": [
+        {
+          "name": "Visit the British Museum (Free)"
+        },
+        {
+          "name": "Relax in Hyde Park (Free)"
+        }
+      ],
+      "hotel": {
+        "name": "Estimated Budget Hostel"
+      },
+      "estimated_cost": 300
+    },
+    {
+      "day_number": 3,
+      "title": "Iconic Sights & Departure",
+      "activities": [
+        {
+          "name": "Free View from the South Bank of the Thames"
+        },
+        {
+          "name": "Explore Covent Garden (Free)"
+        }
+      ],
+      "hotel": {
+        "name": "Estimated Budget Hostel"
+      },
+      "estimated_cost": 400
+    }
+  ]
+}

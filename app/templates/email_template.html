@@ -11,7 +11,7 @@
             padding: 0;
         }
         .email-container {
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
             background-color: #ffffff;
             border-radius: 8px;
@@ -22,13 +22,18 @@
         }
         .header {
             background-color: #6366f1;
-            padding: 20px;
+            padding: 30px 20px;
             text-align: center;
             color: white;
         }
         .header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 28px;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 16px;
+            opacity: 0.9;
         }
         .content {
             padding: 30px 20px;
@@ -38,49 +43,157 @@
             height: auto;
             border-radius: 8px;
             border: 2px solid #d4c4a8;
-            margin-top: 20px;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+        .section-title {
+            color: #4f46e5;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .stats-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+        }
+        .timeline-day {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #fdfdfd;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .day-header {
+            background: #4f46e5;
+            color: white;
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .day-title {
+            font-size: 18px;
+            color: #1e293b;
+            margin: 0 0 10px 0;
+            font-weight: bold;
+        }
+        .item-row {
+            margin-bottom: 8px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .badge {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .tips-list {
+            padding-left: 20px;
+            color: #475569;
+            line-height: 1.6;
         }
         .footer {
-            background-color: #f8fafc;
-            padding: 15px;
+            background-color: #1e293b;
+            padding: 20px;
             text-align: center;
-            color: #64748b;
-            font-size: 12px;
-            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 13px;
         }
         .btn {
             display: inline-block;
-            padding: 12px 24px;
+            padding: 14px 28px;
             background-color: #f59e0b;
             color: white;
             text-decoration: none;
             border-radius: 6px;
             font-weight: bold;
-            margin-top: 20px;
+            margin-top: 30px;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
     <div class="email-container">
         <div class="header">
-            <h1>Your Adventure Awaits! 🗺️</h1>
+            <h1>Your Adventure to {{ plan.destination }} 🌍</h1>
+            <p>{{ plan.duration_days }} Days &bull; AI Planned Itinerary</p>
         </div>
         <div class="content">
-            <h2>Hi {{ user.username }},</h2>
-            <p>Your AI-planned trip to <strong>{{ plan.destination }}</strong> is ready! Here is your custom treasure map itinerary:</p>
+            <p style="font-size: 16px; line-height: 1.6;">Hi {{ user.username }},</p>
+            <p style="font-size: 16px; line-height: 1.6;">Your AI-planned strategy is ready! Below is the complete textual itinerary and strategic breakdown of your trip, along with your custom treasure map.</p>
             
-            <!-- The Playwright-generated PNG will be attached and referenced here -->
             <img src="cid:treasure_map_image" alt="Treasure Map Itinerary" class="map-image">
             
-            <p><strong>Duration:</strong> {{ plan.duration_days }} days</p>
-            <p><strong>Estimated Budget:</strong> ${{ plan.budget_used }} / ${{ plan.total_budget }}</p>
+            <div class="stats-box">
+                <p style="margin: 0 0 10px 0;"><strong>💰 Estimated Budget:</strong> {{ plan.currency_symbol|default('$') }}{{ plan.budget_used }} / {{ plan.currency_symbol|default('$') }}{{ plan.total_budget }}</p>
+                <p style="margin: 0 0 10px 0;"><strong>⛅ Expected Weather:</strong> {{ plan.weather|default('Check local forecast') }}</p>
+                <p style="margin: 0;"><strong>🎒 Travel Style:</strong> {{ plan.preferences|default('General Sightseeing') }}</p>
+            </div>
+
+            <h2 class="section-title">📅 Day-by-Day Itinerary</h2>
+            
+            {% if plan.days %}
+                {% for day in plan.days %}
+                <div class="timeline-day">
+                    <div class="day-header">Day {{ day.day_number }}</div>
+                    <h3 class="day-title">{{ day.title|default('Daily Adventure') }}</h3>
+                    
+                    {% if day.hotel %}
+                    <div class="item-row">
+                        <strong>🏨 Accommodation:</strong> {{ day.hotel.name }} 
+                        {% if day.hotel.cost %}<span class="badge">{{ plan.currency_symbol|default('$') }}{{ day.hotel.cost }}</span>{% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if day.activities %}
+                    <div class="item-row">
+                        <strong>🎯 Activities:</strong>
+                        <ul style="margin-top: 5px; padding-left: 20px;">
+                        {% for act in day.activities %}
+                            <li>{{ act.name }} 
+                                {% if act.cost %}<span class="badge">{{ plan.currency_symbol|default('$') }}{{ act.cost }}</span>{% endif %}
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No daily itinerary details were generated.</p>
+            {% endif %}
+
+            <h2 class="section-title">💡 Travel Strategies & Tips</h2>
+            {% if plan.tips %}
+                <ul class="tips-list">
+                {% for tip in plan.tips %}
+                    <li>{{ tip }}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <ul class="tips-list">
+                    <li><strong>Flights:</strong> Book at least 3-4 weeks in advance for the best deals.</li>
+                    <li><strong>Packing:</strong> Bring versatile clothing and a universal power adapter.</li>
+                    <li><strong>Currency:</strong> Carry a small amount of local cash; most places accept cards.</li>
+                </ul>
+            {% endif %}
 
             <div style="text-align: center;">
-                <a href="{{ app_url }}/dashboard/{{ plan.id }}" class="btn">View Full Details</a>
+                <a href="{{ app_url }}/dashboard/{{ plan.id }}" class="btn">View Live Dashboard</a>
             </div>
         </div>
         <div class="footer">
-            <p>Planned with ❤️ by AI Trip Planner</p>
+            <p>Planned with ❤️ by your AI Trip Planner</p>
+            <p>You received this email because you saved this trip on our platform.</p>
         </div>
     </div>
 </body>

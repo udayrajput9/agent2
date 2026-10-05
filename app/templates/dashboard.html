@@ -3,31 +3,241 @@
 {% block title %}Dashboard - AI Trip Planner{% endblock %}
 
 {% block content %}
-<div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+<div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
     <h1>Your Adventures</h1>
     <a href="/chat" class="btn btn-primary">Plan New Trip</a>
 </div>
 
 {% if trips %}
-<div class="dashboard-grid">
-    {% for trip in trips %}
-    <a href="/dashboard/{{ trip.id }}" class="glass-panel trip-card">
-        <h3>{{ trip.destination }}</h3>
-        <p>From {{ trip.source }}</p>
-        <div class="meta">
-            <span>{{ trip.duration_days }} days</span>
-            <span>${{ trip.budget }}</span>
-        </div>
-    </a>
-    {% endfor %}
-</div>
+    {% if selected_trip %}
+        <!-- Detailed Trip View -->
+        <a href="/dashboard" class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">&larr; Back to all trips</a>
+        
+        <div class="trip-dashboard">
+            <!-- Header Summary -->
+            <div class="trip-summary-banner glass-panel" style="position: relative; overflow: hidden;">
+                <!-- 3D Globe Container -->
+                <div id="globe-container" style="position: absolute; right: -50px; top: -100px; width: 500px; height: 500px; z-index: 0; pointer-events: none;"></div>
+                
+                <div class="trip-title-group" style="position: relative; z-index: 1;">
+                    <h2>{{ selected_trip.destination }}</h2>
+                    <p class="subtitle">From {{ selected_trip.source }} &bull; {{ selected_trip.duration_days }} Days</p>
+                </div>
+                <div class="trip-actions" style="position: relative; z-index: 1;">
+                    <button class="btn btn-secondary">Download PDF</button>
+                    <button class="btn btn-secondary">Export to Calendar</button>
+                </div>
+            </div>
 
-{% if selected_trip %}
-    <div style="margin-top: 3rem;">
-        <h2>Trip to {{ selected_trip.destination }}</h2>
-        {% include "partials/treasure_map.html" %}
-    </div>
-{% endif %}
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card glass-panel">
+                    <span class="icon">💰</span>
+                    <div class="info">
+                        <h4>Budget Tracking</h4>
+                        <p>{{ plan.currency_symbol|default('$') }}{{ plan.budget_used|default('0') }} / {{ plan.currency_symbol|default('$') }}{{ plan.total_budget|default(selected_trip.budget) }}</p>
+                    </div>
+                </div>
+                <div class="stat-card glass-panel">
+                    <span class="icon">⛅</span>
+                    <div class="info">
+                        <h4>Weather / Season</h4>
+                        <p>{{ plan.weather|default('Check local forecast before packing') }}</p>
+                    </div>
+                </div>
+                <div class="stat-card glass-panel">
+                    <span class="icon">🎒</span>
+                    <div class="info">
+                        <h4>Travel Style</h4>
+                        <p>{{ selected_trip.preferences|default('General Sightseeing') }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {% if plan.budget_plan %}
+            {% set bp = plan.budget_plan %}
+            {% set cur = plan.currency_symbol|default('$') %}
+            <!-- Finance Agent: Budget Plan & Price Comparison -->
+            <div class="glass-panel budget-panel">
+                <h3>🏦 Smart Budget Plan</h3>
+                {% if bp.verdict %}<p class="budget-verdict">{{ bp.verdict }}</p>{% endif %}
+
+                {% if bp.allocation %}
+                <div class="allocation-row">
+                    {% for a in bp.allocation %}
+                    <div class="allocation-chip">
+                        <span class="cat">{{ a.category }}</span>
+                        <span class="amt">{{ cur }}{{ a.amount }}</span>
+                        {% if a.percent %}<span class="pct">{{ a.percent }}%</span>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% set comp = bp.comparisons or {} %}
+                <div class="comparison-grid">
+                    {% if comp.flights %}
+                    <div class="price-card">
+                        <h4>✈️ Flight Options</h4>
+                        <table class="price-table">
+                            <thead><tr><th>Option</th><th>Price</th><th>Notes</th></tr></thead>
+                            <tbody>
+                            {% for r in comp.flights %}
+                                <tr class="{{ 'recommended' if r.recommended }}">
+                                    <td>{{ r.option }}{% if r.recommended %} <span class="rec-badge">Best Pick</span>{% endif %}</td>
+                                    <td class="price">{{ r.price }}</td>
+                                    <td class="notes">{{ r.notes }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    {% if comp.hotels %}
+                    <div class="price-card">
+                        <h4>🏨 Stay Options</h4>
+                        <table class="price-table">
+                            <thead><tr><th>Option</th><th>Type</th><th>Per Night</th><th>Notes</th></tr></thead>
+                            <tbody>
+                            {% for r in comp.hotels %}
+                                <tr class="{{ 'recommended' if r.recommended }}">
+                                    <td>{{ r.option }}{% if r.recommended %} <span class="rec-badge">Best Pick</span>{% endif %}</td>
+                                    <td>{{ r.type }}</td>
+                                    <td class="price">{{ r.price_per_night }}</td>
+                                    <td class="notes">{{ r.notes }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    {% if comp.transport %}
+                    <div class="price-card">
+                        <h4>🚕 Local Transport Options</h4>
+                        <table class="price-table">
+                            <thead><tr><th>Option</th><th>Price</th><th>Notes</th></tr></thead>
+                            <tbody>
+                            {% for r in comp.transport %}
+                                <tr class="{{ 'recommended' if r.recommended }}">
+                                    <td>{{ r.option }}{% if r.recommended %} <span class="rec-badge">Best Pick</span>{% endif %}</td>
+                                    <td class="price">{{ r.price }}</td>
+                                    <td class="notes">{{ r.notes }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if bp.strategies %}
+                <div class="money-strategies">
+                    <h4>📈 Money-Saving Strategies</h4>
+                    <ul>
+                    {% for s in bp.strategies %}
+                        <li>{{ s }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="dashboard-layout">
+                <!-- Left Column: Map -->
+                <div class="map-column">
+                    <h3>The Treasure Map</h3>
+                    {% include "partials/treasure_map.html" %}
+                    
+                    <!-- Strategic Advice -->
+                    <div class="glass-panel strategy-panel" style="margin-top: 2rem; padding: 1.5rem;">
+                        <h3>💡 Travel Strategies & Tips</h3>
+                        {% if plan.tips %}
+                            <ul>
+                            {% for tip in plan.tips %}
+                                <li>{{ tip }}</li>
+                            {% endfor %}
+                            </ul>
+                        {% else %}
+                            <ul>
+                                <li><strong>Flights:</strong> Book at least 3-4 weeks in advance for the best deals.</li>
+                                <li><strong>Packing:</strong> Bring versatile clothing and a universal power adapter.</li>
+                                <li><strong>Currency:</strong> Carry a small amount of local cash; most places accept cards.</li>
+                                <li><strong>Transport:</strong> Look into local transit passes for unlimited rides if exploring daily.</li>
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Right Column: Itinerary Breakdown -->
+                <div class="itinerary-column">
+                    <h3>Day-by-Day Itinerary</h3>
+                    <div class="timeline">
+                        {% if plan and plan.days %}
+                            {% for day in plan.days %}
+                                <div class="timeline-item glass-panel">
+                                    <div class="timeline-badge">Day {{ day.day_number }}</div>
+                                    <div class="timeline-content">
+                                        <h4>{{ day.theme|default('Daily Adventure') }}</h4>
+                                        
+                                        {% if day.hotel %}
+                                        <div class="timeline-section hotel">
+                                            <strong>🏨 Accommodation:</strong> {{ day.hotel.name }} 
+                                            {% if day.hotel.cost %}(Est. {{ plan.currency_symbol|default('$') }}{{ day.hotel.cost }}){% endif %}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if day.activities %}
+                                        <div class="timeline-section activities">
+                                            <strong>🎯 Activities:</strong>
+                                            <ul>
+                                            {% for act in day.activities %}
+                                                <li>{{ act.name }} 
+                                                    {% if act.cost %}<span class="cost-badge">{{ plan.currency_symbol|default('$') }}{{ act.cost }}</span>{% endif %}
+                                                    {% if act.time %}<span class="time-badge">{{ act.time }}</span>{% endif %}
+                                                </li>
+                                            {% endfor %}
+                                            </ul>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if day.food %}
+                                        <div class="timeline-section food">
+                                            <strong>🍽️ Dining:</strong> {{ day.food }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="timeline-item glass-panel">
+                                <div class="timeline-content">
+                                    <p style="color: var(--text-muted);">Generating detailed timeline data...</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Grid View of all trips -->
+        <div class="dashboard-grid">
+            {% for trip in trips %}
+            <a href="/dashboard/{{ trip.id }}" class="glass-panel trip-card">
+                <h3>{{ trip.destination }}</h3>
+                <p>From {{ trip.source }}</p>
+                <div class="meta">
+                    <span>{{ trip.duration_days }} days</span>
+                    <span>{{ trip.plan_json.currency_symbol|default('$') if trip.plan_json else '$' }}{{ trip.budget }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    {% endif %}
 
 {% else %}
 <div class="glass-panel" style="text-align: center; padding: 4rem 2rem; margin-top: 2rem;">
@@ -35,5 +245,106 @@
     <a href="/chat" class="btn btn-primary">Start Your First Journey</a>
 </div>
 {% endif %}
+
+<!-- Three.js for 3D UI Enhancements -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const container = document.getElementById('globe-container');
+        if (!container) return;
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Create glowing wireframe globe
+        const geometry = new THREE.SphereGeometry(2, 32, 32);
+        
+        // Solid dark sphere inside to hide back lines
+        const solidMat = new THREE.MeshBasicMaterial({ color: 0x0f172a }); 
+        const solidSphere = new THREE.Mesh(geometry, solidMat);
+        scene.add(solidSphere);
+
+        // Wireframe glowing sphere outside
+        const wireMat = new THREE.MeshBasicMaterial({ 
+            color: 0x6366f1, 
+            wireframe: true,
+            transparent: true,
+            opacity: 0.4
+        });
+        const wireSphere = new THREE.Mesh(geometry, wireMat);
+        wireSphere.scale.set(1.01, 1.01, 1.01);
+        scene.add(wireSphere);
+
+        // Add some floating particles around the globe
+        const particleGeo = new THREE.BufferGeometry();
+        const particleCount = 100;
+        const posArray = new Float32Array(particleCount * 3);
+        
+        for(let i = 0; i < particleCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 8;
+        }
+        
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particleMat = new THREE.PointsMaterial({
+            size: 0.05,
+            color: 0xf59e0b,
+            transparent: true,
+            opacity: 0.6
+        });
+        
+        const particles = new THREE.Points(particleGeo, particleMat);
+        scene.add(particles);
+
+        camera.position.z = 6;
+        
+        // Mouse interaction
+        let mouseX = 0;
+        let mouseY = 0;
+        
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Animation Loop
+        const animate = () => {
+            requestAnimationFrame(animate);
+            
+            // Auto rotation
+            solidSphere.rotation.y += 0.002;
+            wireSphere.rotation.y += 0.002;
+            particles.rotation.y -= 0.001;
+            
+            // Subtle mouse follow
+            const targetX = mouseX * 0.5;
+            const targetY = mouseY * 0.5;
+            
+            solidSphere.rotation.x += (targetY - solidSphere.rotation.x) * 0.05;
+            wireSphere.rotation.x += (targetY - wireSphere.rotation.x) * 0.05;
+            
+            solidSphere.rotation.y += (targetX - solidSphere.rotation.y) * 0.05;
+            wireSphere.rotation.y += (targetX - wireSphere.rotation.y) * 0.05;
+
+            renderer.render(scene, camera);
+        };
+        
+        animate();
+        
+        // Handle resize
+        window.addEventListener('resize', () => {
+            if (container) {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            }
+        });
+    });
+</script>
 
 {% endblock %}

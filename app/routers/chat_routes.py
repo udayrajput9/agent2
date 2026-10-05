@@ -12,7 +12,7 @@ from app.models import ChatSession
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-INTENT_FIELDS = ["source", "destination", "duration_days", "budget", "preferences"]
+INTENT_FIELDS = ["source", "destination", "duration_days", "budget", "currency_symbol", "travel_date", "return_date", "preferences"]
 
 
 def _get_active_session(db: Session, user_id: int) -> ChatSession:
@@ -37,7 +37,7 @@ def chat_page(request: Request, db: Session = Depends(get_db)):
 
     session = _get_active_session(db, request.state.user.id)
     return templates.TemplateResponse(
-        "chat.html", {"request": request, "messages": session.messages_json}
+        request=request, name="chat.html", context={"messages": session.messages_json}
     )
 
 

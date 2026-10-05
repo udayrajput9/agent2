@@ -16,7 +16,7 @@ templates = Jinja2Templates(directory="app/templates")
 def signup_page(request: Request):
     if request.state.user:
         return RedirectResponse("/dashboard", status_code=303)
-    return templates.TemplateResponse("signup.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="signup.html")
 
 
 @router.post("/signup")
@@ -34,8 +34,9 @@ def signup_submit(
     except IntegrityError:
         db.rollback()
         return templates.TemplateResponse(
-            "signup.html",
-            {"request": request, "error": "Username or email already taken."},
+            request=request,
+            name="signup.html",
+            context={"error": "Username or email already taken."},
             status_code=400,
         )
     db.refresh(user)
@@ -50,7 +51,7 @@ def signup_submit(
 def login_page(request: Request):
     if request.state.user:
         return RedirectResponse("/dashboard", status_code=303)
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="login.html")
 
 
 @router.post("/login")
@@ -63,8 +64,9 @@ def login_submit(
     user = db.query(User).filter(User.username == username).first()
     if not user or not verify_password(password, user.hashed_password):
         return templates.TemplateResponse(
-            "login.html",
-            {"request": request, "error": "Invalid username or password."},
+            request=request,
+            name="login.html",
+            context={"error": "Invalid username or password."},
             status_code=400,
         )
 

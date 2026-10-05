@@ -1,0 +1,28 @@
+======================================================
+  COMMANDS TO ACTIVATE ENV AND RUN THE APPLICATION
+======================================================
+
+If you are using PowerShell (Default for modern Windows):
+------------------------------------------------------
+1. Activate the virtual environment:
+   .\venv\Scripts\Activate.ps1
+
+venv\Scripts\activate
+
+2. Run the application:
+   python -m uvicorn app.main:app --reload
+
+
+If you are using Command Prompt (cmd.exe):
+------------------------------------------------------
+1. Activate the virtual environment:
+   .\venv\Scripts\activate.bat
+
+2. Run the application:
+   python -m uvicorn app.main:app --reload
+
+
+To stop the server at any time, just press:
+CTRL + C
+
+I want to plan a 4-day trip from New Delhi to Manali starting tomorrow. My total budget is 30,000 rupees. I prefer an adventurous travel style with some hiking, camping, and outdoor activities. Please provide a detailed day-by-day itinerary taking the local weather into account. Make sure to keep all the estimated costs in rupees.

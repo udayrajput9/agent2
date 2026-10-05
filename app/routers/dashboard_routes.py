@@ -21,7 +21,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         .order_by(TripPlan.created_at.desc())
         .all()
     )
-    return templates.TemplateResponse("dashboard.html", {"request": request, "trips": trips})
+    return templates.TemplateResponse(request=request, name="dashboard.html", context={"trips": trips})
 
 
 @router.get("/dashboard/{trip_id}")
@@ -45,6 +45,7 @@ def dashboard_trip_detail(trip_id: int, request: Request, db: Session = Depends(
     plan.setdefault("destination", selected_trip.destination)
 
     return templates.TemplateResponse(
-        "dashboard.html",
-        {"request": request, "trips": trips, "selected_trip": selected_trip, "plan": plan},
+        request=request,
+        name="dashboard.html",
+        context={"trips": trips, "selected_trip": selected_trip, "plan": plan},
     )
